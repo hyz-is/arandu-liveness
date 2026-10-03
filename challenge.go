@@ -10,8 +10,8 @@ import (
 	"math"
 	"time"
 
-	face "github.com/kuaa-io/arandu-face"
-	onnx "github.com/kuaa-io/arandu-onnx"
+	face "github.com/hyz-is/arandu-face"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // MaxFrames is the most frames EvaluateChallenge and MeasureInjectionSignals

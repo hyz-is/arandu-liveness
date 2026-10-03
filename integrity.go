@@ -12,7 +12,7 @@ import (
 	"sort"
 	"time"
 
-	onnx "github.com/kuaa-io/arandu-onnx"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // IntegrityThresholds are the references a capture's integrity signals are

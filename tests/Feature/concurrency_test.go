@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // TestPassivePADRunsConcurrently runs PassivePAD from several goroutines on

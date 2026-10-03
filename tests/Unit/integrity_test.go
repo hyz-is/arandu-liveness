@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // Every frame here is drawn in Go: gradients and moving sinusoidal bands. No

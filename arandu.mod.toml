@@ -5,7 +5,7 @@
 # calls and then holds an HTTP client is rejected, which is what makes the
 # four lines below worth reading before installing anything.
 
-name = "kuaa-io/liveness"
+name = "hyz-is/liveness"
 framework = ">= 0.50"
 profiles = ["conventional", "performance"]
 

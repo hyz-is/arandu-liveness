@@ -7,7 +7,7 @@
 An Arandu package that measures **presentation-attack, active-challenge and
 capture-integrity signals** for a face capture, with the passive PAD models
 run through ONNX Runtime by
-[`arandu-onnx`](https://github.com/kuaa-io/arandu-onnx). It returns
+[`arandu-onnx`](https://github.com/hyz-is/arandu-onnx). It returns
 **separate, auditable technical signals**, each with the provenance of the
 model behind it when a model is involved. It decides nothing. Thresholds come
 back as versioned reference sets beside the measurements, and whether a
@@ -26,7 +26,7 @@ detection are different questions, and each has its own call and result:
 
 **No call detects a face.** The face box (stage 1) and the per-frame
 landmarks (stage 2) come from the caller, normally from
-[`arandu-face`](https://github.com/kuaa-io/arandu-face)'s `Detect`, so the
+[`arandu-face`](https://github.com/hyz-is/arandu-face)'s `Detect`, so the
 application composes detection, quality, PAD and challenge explicitly and
 records each one's provenance. No function runs two stages for the caller.
 `PADResult` and `DeepfakeSignal` hold no boolean at all; a test walks their
@@ -137,7 +137,7 @@ without `EnablePassive` boots without touching ONNX Runtime.
 ## Install
 
 ```bash
-go get github.com/kuaa-io/arandu-liveness
+go get github.com/hyz-is/arandu-liveness
 ```
 
 Until `arandu-onnx` and `arandu-face` are tagged, `go.mod` resolves them from
@@ -145,8 +145,8 @@ the sibling checkouts:
 
 ```
 replace (
-	github.com/kuaa-io/arandu-face => ../arandu-face
-	github.com/kuaa-io/arandu-onnx => ../arandu-onnx
+	github.com/hyz-is/arandu-face => ../arandu-face
+	github.com/hyz-is/arandu-onnx => ../arandu-onnx
 )
 ```
 
@@ -186,8 +186,8 @@ A models directory holds each file at the path its manifest's `file` says
 `cmd/liveness-models` fills one:
 
 ```bash
-go run github.com/kuaa-io/arandu-liveness/cmd/liveness-models -dir /srv/models
-go run github.com/kuaa-io/arandu-liveness/cmd/liveness-models -dir /srv/models -check
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models -dir /srv/models
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models -dir /srv/models -check
 ```
 
 It downloads each file over HTTPS from the source its manifest records,
@@ -208,9 +208,9 @@ The imports, with the other module imports:
 
 ```go
 import (
-	onnx "github.com/kuaa-io/arandu-onnx"
-	face "github.com/kuaa-io/arandu-face"
-	liveness "github.com/kuaa-io/arandu-liveness"
+	onnx "github.com/hyz-is/arandu-onnx"
+	face "github.com/hyz-is/arandu-face"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 ```
 

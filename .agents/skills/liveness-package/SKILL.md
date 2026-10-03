@@ -1,6 +1,6 @@
 ---
 name: liveness-package
-description: Install, wire and use the Arandu Liveness package (Go, Arandu) in an application. Use when the request is to "install arandu-liveness", "run passive PAD", "check a selfie for spoofing", "issue a head-turn challenge", "evaluate a challenge", "detect replayed frames", "measure injection signals", "deepfake detection", "go get github.com/kuaa-io/arandu-liveness", "wire it into bootstrap/app.go", "download the liveness models", "the boot fails opening minifasnet_v2", "dev-only model refused", "model digest mismatch", "blink challenge unsupported", or when a project's go.mod already requires github.com/kuaa-io/arandu-liveness. Covers the build requirement, the models directory, the wiring and where it goes, the Config fields, each stage's result, and what each error means.
+description: Install, wire and use the Arandu Liveness package (Go, Arandu) in an application. Use when the request is to "install arandu-liveness", "run passive PAD", "check a selfie for spoofing", "issue a head-turn challenge", "evaluate a challenge", "detect replayed frames", "measure injection signals", "deepfake detection", "go get github.com/hyz-is/arandu-liveness", "wire it into bootstrap/app.go", "download the liveness models", "the boot fails opening minifasnet_v2", "dev-only model refused", "model digest mismatch", "blink challenge unsupported", or when a project's go.mod already requires github.com/hyz-is/arandu-liveness. Covers the build requirement, the models directory, the wiring and where it goes, the Config fields, each stage's result, and what each error means.
 license: MIT
 ---
 
@@ -22,8 +22,8 @@ as `arandu-onnx` requires.
 ## Install and fetch the models
 
 ```bash
-go get github.com/kuaa-io/arandu-liveness
-go run github.com/kuaa-io/arandu-liveness/cmd/liveness-models -dir /srv/models
+go get github.com/hyz-is/arandu-liveness
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models -dir /srv/models
 ```
 
 The command downloads every model over HTTPS from its pinned source and keeps
@@ -38,8 +38,8 @@ modules.
 
 ```go
 import (
-	onnx "github.com/kuaa-io/arandu-onnx"
-	liveness "github.com/kuaa-io/arandu-liveness"
+	onnx "github.com/hyz-is/arandu-onnx"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 ```
 

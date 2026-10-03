@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // The benchmark times PassivePAD, both models, on the 480×640 cartoon, one

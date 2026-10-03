@@ -5,7 +5,7 @@ import (
 	"errors"
 	"image"
 
-	onnx "github.com/kuaa-io/arandu-onnx"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // Availability is whether a signal could be measured at all.

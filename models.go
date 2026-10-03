@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	onnx "github.com/kuaa-io/arandu-onnx"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // The identifiers of the models this package ships manifests for.

@@ -7,7 +7,7 @@
 // anything. Run it once, where the application is deployed or when the image
 // is built:
 //
-//	go run github.com/kuaa-io/arandu-liveness/cmd/liveness-models -dir /srv/models
+//	go run github.com/hyz-is/arandu-liveness/cmd/liveness-models -dir /srv/models
 //
 // Each file is fetched over HTTPS from the source_url its manifest records,
 // which pins a revision (or, for a release asset, a release whose digest the
@@ -33,8 +33,8 @@ import (
 	"strings"
 	"time"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
-	onnx "github.com/kuaa-io/arandu-onnx"
+	liveness "github.com/hyz-is/arandu-liveness"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // maxModelBytes caps one download. Each model is under 2 MB.

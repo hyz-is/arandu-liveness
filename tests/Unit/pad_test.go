@@ -6,8 +6,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	face "github.com/kuaa-io/arandu-face"
-	liveness "github.com/kuaa-io/arandu-liveness"
+	face "github.com/hyz-is/arandu-face"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // The expected regions below are worked out by hand from upstream

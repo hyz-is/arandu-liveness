@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // TestNothingHereDecides holds the rule this package exists under: it returns

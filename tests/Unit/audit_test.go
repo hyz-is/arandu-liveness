@@ -277,7 +277,7 @@ func usedCapabilities(files []parsedGoFile) capabilities {
 // reads model files.
 func importsONNX(file *ast.File) bool {
 	for _, imported := range file.Imports {
-		if strings.Trim(imported.Path.Value, `"`) == "github.com/kuaa-io/arandu-onnx" {
+		if strings.Trim(imported.Path.Value, `"`) == "github.com/hyz-is/arandu-onnx" {
 			return true
 		}
 	}

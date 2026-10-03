@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // The download command is exercised here only in -check mode, which reads the

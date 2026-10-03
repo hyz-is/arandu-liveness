@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	face "github.com/kuaa-io/arandu-face"
-	liveness "github.com/kuaa-io/arandu-liveness"
-	onnx "github.com/kuaa-io/arandu-onnx"
+	face "github.com/hyz-is/arandu-face"
+	liveness "github.com/hyz-is/arandu-liveness"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // These tests run the real MiniFASNet models on images drawn here. They hold

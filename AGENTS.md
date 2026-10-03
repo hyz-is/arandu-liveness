@@ -82,8 +82,8 @@ build from competing with everything else for memory.
 `GOWORK=off` matters because this checkout may sit beside a Go workspace that
 does not list it.
 
-`go.mod` replaces `github.com/kuaa-io/arandu-onnx` and
-`github.com/kuaa-io/arandu-face` with `../arandu-onnx` and `../arandu-face`
+`go.mod` replaces `github.com/hyz-is/arandu-onnx` and
+`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`
 until those modules are tagged. Build from a checkout that has them beside
 this one.
 

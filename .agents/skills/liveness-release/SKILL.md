@@ -28,7 +28,7 @@ green.
 ## What the manifest declares, and who reads it
 
 ```toml
-name = "kuaa-io/liveness"
+name = "hyz-is/liveness"
 framework = ">= 0.50"
 profiles = ["conventional", "performance"]
 
@@ -50,8 +50,8 @@ The `framework` line is a floor, and `go.mod` says it too. Move both together.
 
 ## The replaces
 
-`go.mod` replaces `github.com/kuaa-io/arandu-onnx` and
-`github.com/kuaa-io/arandu-face` with `../arandu-onnx` and `../arandu-face`
+`go.mod` replaces `github.com/hyz-is/arandu-onnx` and
+`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`
 while those modules are unpublished. Before the first tag here: tag both,
 require them at those versions, delete the replaces and their comment, and run
 the gates from a checkout without the siblings. The release workflow refuses a

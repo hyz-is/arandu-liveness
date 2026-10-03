@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 // TestTheDeepfakeSignalRecordsItsAbsence holds that the stage reports the

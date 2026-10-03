@@ -4,8 +4,8 @@ name: release
 # exact entry and never writes back to the repository, so a release cannot add
 # a second changelog heading after the immutable module version already exists.
 #
-# A tag is cut only once go.mod no longer replaces github.com/kuaa-io/arandu-onnx
-# and github.com/kuaa-io/arandu-face with their sibling checkouts: a published
+# A tag is cut only once go.mod no longer replaces github.com/hyz-is/arandu-onnx
+# and github.com/hyz-is/arandu-face with their sibling checkouts: a published
 # module with a replace pointing outside itself does not build for anybody who
 # runs go get. The first step refuses it.
 on:
@@ -56,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
           GOWORK=off go run ./cmd/liveness-models -dir "$RUNNER_TEMP/models"
-          GOWORK=off go run github.com/kuaa-io/arandu-face/cmd/face-models -dir "$RUNNER_TEMP/models" -only yunet_2026may
+          GOWORK=off go run github.com/hyz-is/arandu-face/cmd/face-models -dir "$RUNNER_TEMP/models" -only yunet_2026may
           echo "KUAA_MODELS_DIR=$RUNNER_TEMP/models" >> "$GITHUB_ENV"
 
       - name: Verify the exact tag archive

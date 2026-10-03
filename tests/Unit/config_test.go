@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	liveness "github.com/kuaa-io/arandu-liveness"
+	liveness "github.com/hyz-is/arandu-liveness"
 )
 
 func TestConfigValidateRefusesWhatCannotWork(t *testing.T) {

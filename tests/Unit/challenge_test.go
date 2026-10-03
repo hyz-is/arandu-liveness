@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	face "github.com/kuaa-io/arandu-face"
-	liveness "github.com/kuaa-io/arandu-liveness"
-	onnx "github.com/kuaa-io/arandu-onnx"
+	face "github.com/hyz-is/arandu-face"
+	liveness "github.com/hyz-is/arandu-liveness"
+	onnx "github.com/hyz-is/arandu-onnx"
 )
 
 // The landmark sequences here are synthetic: the five points of a frontal
