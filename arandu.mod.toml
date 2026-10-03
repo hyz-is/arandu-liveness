@@ -1,0 +1,28 @@
+# What this package declares about itself.
+#
+# The declaration is capability, not intent, and `aru doctor` compares it with
+# what the code imports and calls. A package that says it makes no outbound
+# calls and then holds an HTTP client is rejected, which is what makes the
+# four lines below worth reading before installing anything.
+
+name = "kuaa-io/liveness"
+framework = ">= 0.50"
+profiles = ["conventional", "performance"]
+
+[permissions]
+# It answers no request and opens no connection. Nothing leaves the process.
+# The model files are fetched by cmd/liveness-models, a separate program the
+# application never links; the library only reads them.
+network = false
+# It reads the model files from the directory the application names, through
+# arandu-onnx's Runtime.Open, which verifies each against its manifest. It
+# writes nothing.
+filesystem = true
+# It runs no other program. It does link one, through arandu-onnx: ONNX
+# Runtime, loaded with dlopen through cgo. That is not exec and the manifest
+# has no key for it, so it is said here instead -- an application registering
+# this module builds with CGO_ENABLED=1 and needs the ONNX Runtime shared
+# library on the machine it runs on.
+exec = false
+# It owns no table.
+migrations = false
