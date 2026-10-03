@@ -88,7 +88,7 @@ types to keep it so.
      (constant-time comparison).
    - Each is a `Check{Signal, Value, Rule, WithinReference}` against
      `DefaultChallengeThresholds()`, version
-     `kuaa-liveness-challenge-0.1-uncalibrated`: ≥ 5 frames, motion 0.3–5 s,
+     `arandu-liveness-challenge-0.1-uncalibrated`: ≥ 5 frames, motion 0.3–5 s,
      |baseline yaw| ≤ 0.12, yaw excursion ≥ 0.25, pitch excursion ≥ 0.10,
      monotonicity ≥ 0.7, step epsilon 0.005.
    - `Completed` is true only when every check is within its reference. It
@@ -116,14 +116,14 @@ types to keep it so.
      EXIF presence, editing segments, distinct Software values, and header
      sizes that differ from the decoded size.
    - Reference: `DefaultIntegrityThresholds()`, version
-     `kuaa-liveness-integrity-0.1-uncalibrated`: jitter CV in [0.002, 0.5],
+     `arandu-liveness-integrity-0.1-uncalibrated`: jitter CV in [0.002, 0.5],
      max interval 250 ms, near duplicate ≤ 2 bits, consecutive near-duplicate
      ratio ≤ 0.5, aspect 0.75 ± 0.01.
 4. **Deepfake and face-swap detection.** No model with an acceptable licence,
    disclosed and consented training data and pinned provenance has been
    reviewed, so none is shipped. The stage still exists:
    `Module.Deepfake` returns `DeepfakeSignal{Availability: "not_available",
-   Reason, Model: nil, Version: "kuaa-liveness-deepfake-none-0.1"}`, so the
+   Reason, Model: nil, Version: "arandu-liveness-deepfake-none-0.1"}`, so the
    application records the absence of the signal as evidence instead of
    skipping it silently.
 

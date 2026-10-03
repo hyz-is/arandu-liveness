@@ -43,7 +43,7 @@ type IntegrityThresholds struct {
 // calibrated on any population or device; their version says so.
 func DefaultIntegrityThresholds() IntegrityThresholds {
 	return IntegrityThresholds{
-		Version:               "kuaa-liveness-integrity-0.1-uncalibrated",
+		Version:               "arandu-liveness-integrity-0.1-uncalibrated",
 		MinJitterCV:           0.002,
 		MaxJitterCV:           0.5,
 		MaxInterval:           250 * time.Millisecond,

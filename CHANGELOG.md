@@ -29,12 +29,12 @@ a release is corrected by another release and never by moving a tag.
   landmarks with `YawProxy` and `PitchProxy`; `blink`, `smile` and
   `open_mouth` reported unsupported. Timing, expiry, nonce binding,
   monotonicity and excursion checked against `DefaultChallengeThresholds()`
-  (`kuaa-liveness-challenge-0.1-uncalibrated`). `NewChallenge`, `BindNonce`.
+  (`arandu-liveness-challenge-0.1-uncalibrated`). `NewChallenge`, `BindNonce`.
 - `MeasureInjectionSignals` and `Module.MeasureInjectionSignals`: nonce
   binding, frame timing and jitter (`FrameTiming`), exact and near duplicate
   frames (`DifferenceHash`, `HashDistance`), size and aspect consistency, and
   JPEG metadata (`ReadJPEGMetadata`), checked against
-  `DefaultIntegrityThresholds()` (`kuaa-liveness-integrity-0.1-uncalibrated`).
+  `DefaultIntegrityThresholds()` (`arandu-liveness-integrity-0.1-uncalibrated`).
 - `Module.Deepfake` and `DeepfakeUnavailable`: a `DeepfakeSignal` that reports
   `NotAvailable` with its reason, since no deepfake detector is cleared.
 - `Config`: `ModelsDir`, `EnablePassive`, `RefuseDevOnly`, `PADModels`,

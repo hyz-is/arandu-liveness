@@ -16,7 +16,7 @@ const NotAvailable Availability = "not_available"
 
 // DeepfakeReferenceVersion names the statement Deepfake returns. A change to
 // the reason, or a model becoming available, is a new version.
-const DeepfakeReferenceVersion = "kuaa-liveness-deepfake-none-0.1"
+const DeepfakeReferenceVersion = "arandu-liveness-deepfake-none-0.1"
 
 // deepfakeReason is why there is no deepfake signal.
 const deepfakeReason = "no deepfake, face-swap or face-reenactment detection model has been reviewed with an " +

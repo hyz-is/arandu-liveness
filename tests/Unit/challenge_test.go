@@ -146,7 +146,7 @@ func TestATurnTowardTheRequestedSideIsCompleted(t *testing.T) {
 	if !r.Nonce.Equal || len(r.LandmarkModels) != 1 || r.LandmarkModels[0] != detector {
 		t.Errorf("nonce %+v, landmark models %+v", r.Nonce, r.LandmarkModels)
 	}
-	if r.Thresholds.Version != "kuaa-liveness-challenge-0.1-uncalibrated" {
+	if r.Thresholds.Version != "arandu-liveness-challenge-0.1-uncalibrated" {
 		t.Errorf("thresholds %s", r.Thresholds.Version)
 	}
 

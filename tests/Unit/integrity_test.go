@@ -161,7 +161,7 @@ func TestADistinctJitteryCaptureIsWithinEveryReference(t *testing.T) {
 		len(s.Geometry.Sizes) != 1 || s.Geometry.Aspect.Ratio != 0.75 || !s.Nonce.Equal {
 		t.Errorf("signals %+v", s)
 	}
-	if s.Thresholds.Version != "kuaa-liveness-integrity-0.1-uncalibrated" || s.Metadata.Encoded != 0 {
+	if s.Thresholds.Version != "arandu-liveness-integrity-0.1-uncalibrated" || s.Metadata.Encoded != 0 {
 		t.Errorf("thresholds %s, encoded %d", s.Thresholds.Version, s.Metadata.Encoded)
 	}
 }

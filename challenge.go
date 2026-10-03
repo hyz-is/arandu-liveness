@@ -220,7 +220,7 @@ type ChallengeThresholds struct {
 // calibrated on any population; their version says so.
 func DefaultChallengeThresholds() ChallengeThresholds {
 	return ChallengeThresholds{
-		Version:           "kuaa-liveness-challenge-0.1-uncalibrated",
+		Version:           "arandu-liveness-challenge-0.1-uncalibrated",
 		MinFrames:         5,
 		MinMotionDuration: 300 * time.Millisecond,
 		MaxMotionDuration: 5 * time.Second,
