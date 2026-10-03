@@ -84,10 +84,11 @@ build from competing with everything else for memory.
 `GOWORK=off` matters because this checkout may sit beside a Go workspace that
 does not list it.
 
-`go.mod` replaces `github.com/hyz-is/arandu-onnx` and
-`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`
-until those modules are tagged. Build from a checkout that has them beside
-this one.
+While `go.mod` replaces `github.com/hyz-is/arandu-onnx` and
+`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`,
+build from a checkout that has them beside this one. Once both are required at
+tags the replaces are gone, the checkout builds on its own, and the release
+workflow, which refuses a local replace, can publish this module.
 
 `aru doctor` reads applications, not libraries. That is why
 `tests/Unit/audit_test.go` compares `arandu.mod.toml` with what the code calls.
