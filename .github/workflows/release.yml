@@ -1,0 +1,111 @@
+name: release
+
+# Release notes are versioned before the tag is cut. The workflow reads that
+# exact entry and never writes back to the repository, so a release cannot add
+# a second changelog heading after the immutable module version already exists.
+#
+# A tag is cut only once go.mod no longer replaces github.com/kuaa-io/arandu-onnx
+# and github.com/kuaa-io/arandu-face with their sibling checkouts: a published
+# module with a replace pointing outside itself does not build for anybody who
+# runs go get. The first step refuses it.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+# The ONNX Runtime binding arandu-onnx links is cgo.
+env:
+  CGO_ENABLED: "1"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Refuse a local replace
+        run: |
+          set -euo pipefail
+          if grep -qE '^replace .* => \.\.?/' go.mod; then
+            echo "go.mod still replaces a module with a local path; tag arandu-onnx and arandu-face and require them first"
+            exit 1
+          fi
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+
+      # The pipeline tests load ONNX Runtime and skip without it, which would
+      # leave the pipeline untested. The library goes where the Linux default,
+      # the loader's own search path, finds it.
+      - name: install ONNX Runtime
+        run: |
+          set -euo pipefail
+          version=1.27.1
+          curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v${version}/onnxruntime-linux-x64-${version}.tgz" \
+            | tar -xz -C "$RUNNER_TEMP"
+          sudo cp -P "$RUNNER_TEMP/onnxruntime-linux-x64-${version}/lib/"libonnxruntime*.so* /usr/local/lib/
+          sudo ldconfig
+
+      - name: fetch the models
+        run: |
+          set -euo pipefail
+          GOWORK=off go run ./cmd/liveness-models -dir "$RUNNER_TEMP/models"
+          GOWORK=off go run github.com/kuaa-io/arandu-face/cmd/face-models -dir "$RUNNER_TEMP/models" -only yunet_2026may
+          echo "KUAA_MODELS_DIR=$RUNNER_TEMP/models" >> "$GITHUB_ENV"
+
+      - name: Verify the exact tag archive
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "$TAG")"
+          archive="$RUNNER_TEMP/package-liveness"
+          mkdir -p "$archive"
+          git archive "$TAG" | tar -x -C "$archive"
+          cd "$archive"
+          unformatted=$(find . -name '*.go' -not -path '*/testdata/*' \
+                          -not -name '*.kyse.go' -exec gofmt -l {} +)
+          test -z "$unformatted" || { echo "$unformatted"; exit 1; }
+          GOWORK=off go build ./...
+          GOWORK=off go vet ./...
+          GOWORK=off go test -race -count=1 ./...
+
+      - name: Audit known vulnerabilities
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          GOWORK=off govulncheck ./...
+
+      - name: Publish the pre-versioned changelog entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          heading="## [$version] - "
+          count=$(grep -cF "$heading" CHANGELOG.md || true)
+          if [ "$count" -ne 1 ]; then
+            echo "CHANGELOG.md must contain exactly one pre-versioned $TAG entry"
+            exit 1
+          fi
+
+          notes="$RUNNER_TEMP/release-notes.md"
+          awk -v heading="$heading" '
+            index($0, heading) == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > "$notes"
+          if ! grep -q '[^[:space:]]' "$notes"; then
+            echo "the pre-versioned $TAG entry has no release notes"
+            exit 1
+          fi
+
+          gh release create "$TAG" --verify-tag --title "$TAG" \
+            --notes-file "$notes"
