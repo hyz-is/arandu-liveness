@@ -1,0 +1,31 @@
+Arandu Liveness
+Copyright (c) HYZIS - SERVICOS DIGITAIS LTDA - EPP
+
+The source code of this repository is licensed under the MIT License; see
+LICENSE.md. It contains no third-party source file and no model weights.
+
+-------------------------------------------------------------------------------
+Algorithms and constants followed
+
+The Go implementation is this repository's own. To produce the same signals as
+the reference implementation of the models it runs, it follows their published
+preprocessing:
+
+- The MiniFASNet crop (scale reduction, aspect-preserving enlargement, edge
+  shifting, inclusive integer region), the 80x80 BGR raw-pixel input, the
+  per-model crop scales 2.7 and 4.0, the class indices and the fusion of the
+  two models' probabilities, as in minivision-ai/Silent-Face-Anti-Spoofing
+  (https://github.com/minivision-ai/Silent-Face-Anti-Spoofing, Apache License
+  2.0), and the ONNX export conventions of yakhyo/face-anti-spoofing (Apache
+  License 2.0).
+- The bilinear resize with pixel-centre alignment, as OpenCV's cv2.resize
+  (https://github.com/opencv/opencv, Apache License 2.0) defines it.
+- The 64-bit difference hash, a published, widely used perceptual-hash
+  technique.
+
+-------------------------------------------------------------------------------
+Model weights
+
+The ONNX model files are NOT part of this repository and are not distributed
+with it. cmd/liveness-models downloads them from their upstream source. Each is
+under its own licence, and both are marked dev-only; see THIRD_PARTY_MODELS.md.

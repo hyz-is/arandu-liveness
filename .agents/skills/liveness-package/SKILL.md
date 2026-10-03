@@ -22,8 +22,8 @@ as `arandu-onnx` requires.
 ## Install and fetch the models
 
 ```bash
-go get github.com/hyz-is/arandu-liveness
-go run github.com/hyz-is/arandu-liveness/cmd/liveness-models -dir /srv/models
+go get github.com/hyz-is/arandu-liveness@v0.1.0
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.1.0 -dir /srv/models
 ```
 
 The command downloads every model over HTTPS from its pinned source and keeps

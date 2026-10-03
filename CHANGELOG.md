@@ -10,6 +10,13 @@ a release is corrected by another release and never by moving a tag.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-03
+
+The first public release, as `github.com/hyz-is/arandu-liveness`. It requires
+`github.com/hyz-is/arandu-onnx` v0.1.0, `github.com/hyz-is/arandu-face` v0.1.0
+and, for passive PAD, ONNX Runtime 1.26 or later (CI and release run 1.30.0).
+Both PAD models are `dev-only`; see `THIRD_PARTY_MODELS.md`.
+
 ### Added
 
 - `Module`: `foundation.Module` with no route, plus `Bootable` (opens the PAD
@@ -44,3 +51,7 @@ a release is corrected by another release and never by moving a tag.
   `Manifests`, `LookupManifest`, `LookupModelCard`, `DefaultScales`.
 - `cmd/liveness-models`: downloads the model files over HTTPS and verifies
   their digests; `-check` verifies without connecting.
+- `NOTICE`, attributing the upstream preprocessing the stages follow, and
+  `THIRD_PARTY_MODELS.md`, listing each model's source, digest, licences,
+  training data, evaluation and status. The weights are not distributed with
+  the module.
