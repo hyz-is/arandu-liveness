@@ -371,7 +371,7 @@ go vet ./...
 go test -race ./...
 ```
 
-The model tests read the models from `KUAA_MODELS_DIR`, or from the KUAA
+The model tests read the models from `LIVENESS_MODELS_DIR`, or from the KUAA
 workspace's `models/` two levels above this checkout, and skip, saying where
 they looked, when the files are not there; they skip too when ONNX Runtime is
 absent. The composition test also needs arandu-face's YuNet file. A skip is a

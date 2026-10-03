@@ -56,7 +56,7 @@ merged.
    reads model files from `Config.ModelsDir`.
 8. **Configuration is typed.** `Config` comes from the application. This
    package reads no environment variable; only the tests read
-   `KUAA_MODELS_DIR`.
+   `LIVENESS_MODELS_DIR`.
 9. **Fixtures are synthetic.** No photograph of a person, no face dataset, no
    attack sample, no name or number in a test, an example or a log line.
 
@@ -74,7 +74,7 @@ go test -race ./...
 
 `CGO_ENABLED=1` is required: arandu-onnx's binding is cgo. The model tests
 need the ONNX Runtime shared library and the model files, from
-`KUAA_MODELS_DIR` or the KUAA workspace's `models/`; where either is absent
+`LIVENESS_MODELS_DIR` or `../../models`; where either is absent
 they skip saying why, and the skip is a reason to fix the machine, not a green
 result for the models. On a shared workstation, `GOFLAGS=-p=2` keeps the
 build from competing with everything else for memory.

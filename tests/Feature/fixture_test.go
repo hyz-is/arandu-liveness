@@ -19,15 +19,16 @@ import (
 // These helpers load the real models and draw the images the tests read.
 //
 // The models are not in the repository. The tests look for them in the
-// directory KUAA_MODELS_DIR names, or in the KUAA workspace's model cache two
-// levels above this checkout, and skip, saying where they looked, when neither
+// directory LIVENESS_MODELS_DIR names, or in models/ two levels above this
+// checkout (where a workspace that holds the module under modules/ keeps its
+// model cache), and skip, saying where they looked, when neither
 // has them. Every image is drawn here, procedurally: no photograph of a person,
 // no face dataset and no presentation-attack sample is read.
 
 // modelsRoot is the directory the tests read model files from.
 func modelsRoot(t testing.TB) string {
 	t.Helper()
-	if dir := os.Getenv("KUAA_MODELS_DIR"); dir != "" {
+	if dir := os.Getenv("LIVENESS_MODELS_DIR"); dir != "" {
 		return dir
 	}
 	return filepath.Join(packageRoot(t), "..", "..", "models")
@@ -43,7 +44,7 @@ func modelsDir(t testing.TB) string {
 			t.Fatalf("looking up the manifest of %s: %v", id, err)
 		}
 		if _, err := os.Stat(filepath.Join(dir, manifest.File)); err != nil {
-			t.Skipf("the liveness models are not in %s (set KUAA_MODELS_DIR, or fill it with go run ./cmd/liveness-models -dir %s): %v", dir, dir, err)
+			t.Skipf("the liveness models are not in %s (set LIVENESS_MODELS_DIR, or fill it with go run ./cmd/liveness-models -dir %s): %v", dir, dir, err)
 		}
 	}
 	return dir

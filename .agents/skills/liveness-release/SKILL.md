@@ -18,8 +18,8 @@ go test -race ./...
 
 `GOWORK=off` because this checkout may sit beside a workspace that does not
 list it. `CGO_ENABLED=1` because arandu-onnx's binding is cgo. The model tests
-need ONNX Runtime and the models (from `KUAA_MODELS_DIR`, or the KUAA
-workspace's `models/`); they skip, saying why, without either. A run where
+need ONNX Runtime and the models (from `LIVENESS_MODELS_DIR`, or
+`../../models`); they skip, saying why, without either. A run where
 they skipped has not tested the models: read the skip lines before calling it
 green.
 
