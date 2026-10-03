@@ -1,0 +1,16 @@
+{
+  "id": "minifasnet_v2",
+  "version": "2.7_80x80-yakhyo-weights",
+  "file": "liveness/MiniFASNetV2.onnx",
+  "sha256": "b32929adc2d9c34b9486f8c4c7bc97c1b69bc0ea9befefc380e4faae4e463907",
+  "source_url": "https://github.com/yakhyo/face-anti-spoofing/releases/download/weights/MiniFASNetV2.onnx",
+  "license": "Apache-2.0",
+  "model_license": "Apache-2.0",
+  "commercial_use": "yes",
+  "redistribution": "allowed under Apache-2.0, with its licence and notice; a third-party export of minivision-ai/Silent-Face-Anti-Spoofing weights whose training data is undisclosed, see ModelCard",
+  "modification": "allowed under Apache-2.0",
+  "status": "dev-only",
+  "inputs": [{"name": "input", "element_type": "float32", "shape": [-1, 3, 80, 80]}],
+  "outputs": [{"name": "output", "element_type": "float32", "shape": [-1, 3]}],
+  "precision": "fp32"
+}
