@@ -33,6 +33,10 @@ type Config struct {
 	// not named keeps DefaultScales' value, the one it was trained with; any
 	// other value leaves upstream's preprocessing, and the result records it.
 	Scales map[string]float64
+	// MaxPADFrames is the most frames PassivePADFrames runs the models on in
+	// one call, which bounds the CPU a capture costs. Default
+	// DefaultMaxPADFrames; at most MaxFrames.
+	MaxPADFrames int
 
 	// PADReference is the reference set PassivePAD returns. Default
 	// MiniFASNetUpstreamReference().
@@ -73,6 +77,9 @@ func (c Config) Validate() error {
 			return fmt.Errorf("liveness: Config.Scales[%q] is %v, and has to be above 0 and at most %d", id, scale, MaxScale)
 		}
 	}
+	if c.MaxPADFrames < 0 || c.MaxPADFrames > MaxFrames {
+		return fmt.Errorf("liveness: Config.MaxPADFrames is %d, and has to be between 1 and %d, or 0 for the default", c.MaxPADFrames, MaxFrames)
+	}
 	if c.PADReference.Version != "" {
 		if err := c.PADReference.Validate(); err != nil {
 			return err
@@ -110,6 +117,9 @@ func (c Config) WithDefaults() Config {
 		scales[id] = scale
 	}
 	c.Scales = scales
+	if c.MaxPADFrames == 0 {
+		c.MaxPADFrames = DefaultMaxPADFrames
+	}
 	if c.PADReference.Version == "" {
 		c.PADReference = MiniFASNetUpstreamReference()
 	}

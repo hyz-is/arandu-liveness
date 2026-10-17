@@ -290,12 +290,25 @@ type PADResult struct {
 func (m *Module) PassivePAD(ctx context.Context, img image.Image, box face.Box) (PADResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	if err := m.usable(); err != nil {
+	if err := m.padReady("PassivePAD"); err != nil {
 		return PADResult{}, err
 	}
-	if len(m.pad) == 0 {
-		return PADResult{}, fmt.Errorf("%w: PassivePAD needs Config.EnablePassive", ErrNotEnabled)
+	return m.passivePAD(ctx, img, box)
+}
+
+// padReady reports why the PAD stage cannot run, for a caller holding mu.
+func (m *Module) padReady(stage string) error {
+	if err := m.usable(); err != nil {
+		return err
 	}
+	if len(m.pad) == 0 {
+		return fmt.Errorf("%w: %s needs Config.EnablePassive", ErrNotEnabled, stage)
+	}
+	return nil
+}
+
+// passivePAD is PassivePAD for a caller holding mu that has checked padReady.
+func (m *Module) passivePAD(ctx context.Context, img image.Image, box face.Box) (PADResult, error) {
 	b := img.Bounds()
 	if b.Empty() {
 		return PADResult{}, errors.New("liveness: PassivePAD of an empty image")

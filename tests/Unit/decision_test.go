@@ -76,6 +76,7 @@ func TestTheNewerResultsHoldNoBooleanOfTheirOwn(t *testing.T) {
 	t.Parallel()
 
 	leaves := map[reflect.Type]bool{reflect.TypeOf(time.Time{}): true}
+	noBoolean(t, "PADFramesResult", reflect.TypeOf(liveness.PADFramesResult{}), leaves)
 
 	sanctioned := map[reflect.Type]bool{
 		reflect.TypeOf(time.Time{}):                true,
