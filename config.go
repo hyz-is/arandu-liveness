@@ -50,6 +50,9 @@ type Config struct {
 	// Sequence are the references EvaluateChallengeSequence checks against.
 	// Default DefaultSequenceThresholds().
 	Sequence SequenceThresholds
+	// ScreenReplay is the reference set MeasureScreenReplay measures with.
+	// Default DefaultScreenReplayReference().
+	ScreenReplay ScreenReplayReferenceSet
 }
 
 // Validate reports what the configuration cannot be used with. New calls it,
@@ -100,6 +103,11 @@ func (c Config) Validate() error {
 			return err
 		}
 	}
+	if c.ScreenReplay.Version != "" {
+		if err := c.ScreenReplay.Validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -131,6 +139,9 @@ func (c Config) WithDefaults() Config {
 	}
 	if c.Sequence.Version == "" {
 		c.Sequence = DefaultSequenceThresholds()
+	}
+	if c.ScreenReplay.Version == "" {
+		c.ScreenReplay = DefaultScreenReplayReference()
 	}
 	return c
 }
