@@ -43,6 +43,9 @@ type Config struct {
 	// Integrity are the references MeasureInjectionSignals checks against.
 	// Default DefaultIntegrityThresholds().
 	Integrity IntegrityThresholds
+	// Sequence are the references EvaluateChallengeSequence checks against.
+	// Default DefaultSequenceThresholds().
+	Sequence SequenceThresholds
 }
 
 // Validate reports what the configuration cannot be used with. New calls it,
@@ -85,6 +88,11 @@ func (c Config) Validate() error {
 			return err
 		}
 	}
+	if c.Sequence.Version != "" {
+		if err := c.Sequence.Validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -110,6 +118,9 @@ func (c Config) WithDefaults() Config {
 	}
 	if c.Integrity.Version == "" {
 		c.Integrity = DefaultIntegrityThresholds()
+	}
+	if c.Sequence.Version == "" {
+		c.Sequence = DefaultSequenceThresholds()
 	}
 	return c
 }

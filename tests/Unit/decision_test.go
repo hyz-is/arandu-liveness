@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"testing"
+	"time"
 
 	liveness "github.com/hyz-is/arandu-liveness"
 )
@@ -58,8 +59,44 @@ func TestNothingHereDecides(t *testing.T) {
 func TestThePADAndDeepfakeResultsHoldNoBoolean(t *testing.T) {
 	t.Parallel()
 
+	noBoolean(t, "PADResult", reflect.TypeOf(liveness.PADResult{}), nil)
+	noBoolean(t, "DeepfakeSignal", reflect.TypeOf(liveness.DeepfakeSignal{}), nil)
+}
+
+// TestTheNewerResultsHoldNoBooleanOfTheirOwn extends the rule to the results
+// added beside the first ones. The multi-frame PAD result and the screen
+// replay signals carry no boolean at all, like PADResult. The sequence result
+// carries none of its own: the only booleans inside it are those of the types
+// TestNothingHereDecides already sanctions by name -- a step's
+// ChallengeResult (Completed, Supported), a Check's WithinReference and a
+// NonceBinding's presence and equality -- and the walk does not descend into
+// them. time.Time is a leaf: its location's daylight-saving flags are the
+// clock's, not a verdict.
+func TestTheNewerResultsHoldNoBooleanOfTheirOwn(t *testing.T) {
+	t.Parallel()
+
+	leaves := map[reflect.Type]bool{reflect.TypeOf(time.Time{}): true}
+
+	sanctioned := map[reflect.Type]bool{
+		reflect.TypeOf(time.Time{}):                true,
+		reflect.TypeOf(liveness.ChallengeResult{}): true,
+		reflect.TypeOf(liveness.Check{}):           true,
+		reflect.TypeOf(liveness.NonceBinding{}):    true,
+	}
+	noBoolean(t, "ChallengeSequenceResult", reflect.TypeOf(liveness.ChallengeSequenceResult{}), sanctioned)
+	noBoolean(t, "ChallengeSequence", reflect.TypeOf(liveness.ChallengeSequence{}), leaves)
+}
+
+// noBoolean fails for every boolean reachable from typ, through fields,
+// pointers, slices, arrays and maps, except inside the leaf types.
+func noBoolean(t *testing.T, root string, typ reflect.Type, leaves map[reflect.Type]bool) {
+	t.Helper()
+
 	var walk func(path string, typ reflect.Type, seen map[reflect.Type]bool)
 	walk = func(path string, typ reflect.Type, seen map[reflect.Type]bool) {
+		if leaves[typ] {
+			return
+		}
 		switch typ.Kind() {
 		case reflect.Bool:
 			t.Errorf("%s is a boolean", path)
@@ -79,6 +116,5 @@ func TestThePADAndDeepfakeResultsHoldNoBoolean(t *testing.T) {
 			}
 		}
 	}
-	walk("PADResult", reflect.TypeOf(liveness.PADResult{}), map[reflect.Type]bool{})
-	walk("DeepfakeSignal", reflect.TypeOf(liveness.DeepfakeSignal{}), map[reflect.Type]bool{})
+	walk(root, typ, map[reflect.Type]bool{})
 }

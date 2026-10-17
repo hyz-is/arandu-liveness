@@ -386,6 +386,14 @@ func PitchProxy(landmarks [5]face.Point) (float64, error) {
 // replayed video of the right movement completes a challenge too, which is
 // what the nonce, the timing and MeasureInjectionSignals are for.
 func EvaluateChallenge(ch Challenge, resp ChallengeResponse, thresholds ChallengeThresholds) (ChallengeResult, error) {
+	return evaluateChallenge(ch, resp, thresholds, ch.ExpiresAt)
+}
+
+// evaluateChallenge is EvaluateChallenge with the receipt held against
+// receiptDeadline rather than the challenge's own expiry, which is what a step
+// of a sequence needs: its frames belong to its own window, and its receipt to
+// the sequence's.
+func evaluateChallenge(ch Challenge, resp ChallengeResponse, thresholds ChallengeThresholds, receiptDeadline time.Time) (ChallengeResult, error) {
 	if err := ch.Validate(); err != nil {
 		return ChallengeResult{}, err
 	}
@@ -426,7 +434,7 @@ func EvaluateChallenge(ch Challenge, resp ChallengeResponse, thresholds Challeng
 	r.Checks = []Check{
 		isTrue("Supported", supported),
 		isTrue("NonceEchoed", r.Nonce.Equal),
-		isTrue("ReceivedBeforeExpiry", !resp.ReceivedAt.After(ch.ExpiresAt)),
+		isTrue("ReceivedBeforeExpiry", !resp.ReceivedAt.After(receiptDeadline)),
 		atMost("FramesOutsideValidity", float64(r.Timing.FramesOutsideValidity), 0),
 		atMost("NonIncreasingSteps", float64(r.Timing.NonIncreasingSteps), 0),
 		atLeast("FrameCount", float64(r.FrameCount), float64(thresholds.MinFrames)),
