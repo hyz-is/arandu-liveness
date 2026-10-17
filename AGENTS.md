@@ -28,12 +28,14 @@ merged.
    (there is no `CheckLiveness`). Liveness, PAD and injection/deepfake are
    separate results. Thresholds travel with the results as versioned
    reference sets (`PADReferenceSet`, `ChallengeThresholds`,
-   `IntegrityThresholds`); what they mean for a case is the policy engine's
-   business, in the application. `ChallengeResult.Completed` and
+   `SequenceThresholds`, `IntegrityThresholds`,
+   `ScreenReplayReferenceSet`); what they mean for a case is the policy
+   engine's business, in the application. `ChallengeResult.Completed` and
    `Check.WithinReference` say a measurement met a versioned reference, never
    what the subject is. `tests/Unit/decision_test.go` refuses the names that
-   would break this, and holds that `PADResult` and `DeepfakeSignal` carry no
-   boolean at all.
+   would break this, and holds that `PADResult`, `PADFramesResult`,
+   `ScreenReplaySignals` and `DeepfakeSignal` carry no boolean at all, and
+   `ChallengeSequenceResult` none outside the types the name rule sanctions.
 2. **No hidden detection.** The face box and the landmarks come from the
    caller, normally from arandu-face's `Detect`. Nothing here detects a face.
 3. **No Python.** Not as a runtime, not in a gate, not in a test, not to
@@ -101,6 +103,9 @@ config.go     what the application passes in, and the defaults
 models.go     the embedded manifests, the scales and the model cards
 pad.go        PassivePAD, PADCrop, Softmax, FusePAD, CaptureAspect, the reference
 challenge.go  Challenge, YawProxy, PitchProxy, EvaluateChallenge, BindNonce
+sequence.go   ChallengeSequence, NewChallengeSequence, DeriveStepNonce, EvaluateChallengeSequence
+padframes.go  PassivePADFrames, SummarizePADSeries, EvenlySpacedFrames
+screenreplay.go  MeasureScreenReplay: FFT periodicity and specular highlights, experimental
 integrity.go  MeasureInjectionSignals, FrameTiming, DifferenceHash
 jpegmeta.go   ReadJPEGMetadata: JPEG markers and EXIF IFD0
 deepfake.go   DeepfakeSignal, NotAvailable
@@ -124,6 +129,7 @@ and every test that runs a model).
 | one call that detects, checks quality, runs PAD and the challenge | separate calls, each with its own result; detection is arandu-face's |
 | a deepfake check that quietly returns nothing | `DeepfakeSignal{NotAvailable, Reason}` |
 | a blink or smile challenge on five landmarks | `Supported: false` with the reason |
+| a colour or flash reflection challenge | nothing: the technique is the subject of third-party patents |
 | a model file in the repository | its manifest; the file is fetched by `cmd/liveness-models` |
 | a download in the library or a test | `cmd/liveness-models`, run once where the application is deployed |
 | loading a model by path alone | `Runtime.Open(manifest, ModelsDir)` |

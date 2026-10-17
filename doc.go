@@ -7,9 +7,14 @@
 // frame and one face box, EvaluateChallenge measures a head-movement
 // challenge from per-frame landmarks, MeasureInjectionSignals measures the
 // timing, duplication, geometry, metadata and nonce binding of a capture, and
-// Deepfake records that no deepfake detector is available. The face box and
-// the landmarks come from the caller, normally from arandu-face's Detect: no
-// call here detects a face for the caller, and none decides anything.
+// Deepfake records that no deepfake detector is available. PassivePADFrames
+// runs PassivePAD on several frames and summarizes the scores,
+// NewChallengeSequence and EvaluateChallengeSequence draw and measure an
+// ordered series of challenges bound to one nonce, and MeasureScreenReplay
+// measures an experimental periodic-texture and highlight signal of a face
+// shown on a screen. The face box and the landmarks come from the caller,
+// normally from arandu-face's Detect: no call here detects a face for the
+// caller, and none decides anything.
 // Thresholds travel with the results as versioned reference sets, and what
 // they mean for a case is the application's policy.
 //

@@ -23,14 +23,18 @@ detection are different questions, and each has its own call and result:
 | 2. Active challenge | `EvaluateChallenge(ch, resp, thresholds)` / `Module.EvaluateChallenge` | none (Go) | `ChallengeResult{Kind, Supported, Observed, Completed, Timing, FrameCount, Monotonicity, Nonce, LandmarkModels, Checks, Thresholds}` |
 | 3. Capture integrity | `MeasureInjectionSignals(capture, thresholds)` / `Module.MeasureInjectionSignals` | none (Go) | `InjectionSignals{Nonce, Timing, Duplicates, Geometry, Metadata, Checks, Thresholds}` |
 | 4. Deepfake | `Module.Deepfake(ctx, img)` / `DeepfakeUnavailable()` | none available | `DeepfakeSignal{Availability "not_available", Reason, Model nil, Version}` |
+| 5. Multi-frame PAD | `Module.PassivePADFrames(ctx, frames)` | stage 1's models, per frame | `PADFramesResult{Frames []{Index, CapturedAt, SkipReason, SkipDetail, PAD}, Submitted, Evaluated, Skipped, SkippedBy, FrameLimit, FusedReal, LabelCounts, Span, ReferenceSet}` |
+| 6. Challenge sequence | `NewChallengeSequence(kinds, steps, issuedAt, ttl, random)`, `EvaluateChallengeSequence(seq, resp, thresholds)` / `Module.EvaluateChallengeSequence` | none (Go) | `ChallengeSequenceResult{Steps []{Index, Kind, ResponseIndex, Result}, ExpectedOrder, ObservedOrder, OrderInversions, AnsweredSteps, MissingSteps, CompletedSteps, UnboundResponses, DuplicateResponses, Timing, Checks, Thresholds}` |
+| 7. Screen replay (experimental) | `MeasureScreenReplay(img, region, ref)` / `Module.MeasureScreenReplay` | none (Go) | `ScreenReplaySignals{Region, AnalysisSize, PeriodicPeakRatio, BandEnergyRatio, PeakFrequency, PeakOrientation, SpecularHighlightRatio, MeanLuma, Method, Version, ReferenceSet}` |
 
 **No call detects a face.** The face box (stage 1) and the per-frame
 landmarks (stage 2) come from the caller, normally from
 [`arandu-face`](https://github.com/hyz-is/arandu-face)'s `Detect`, so the
 application composes detection, quality, PAD and challenge explicitly and
 records each one's provenance. No function runs two stages for the caller.
-`PADResult` and `DeepfakeSignal` hold no boolean at all; a test walks their
-types to keep it so.
+`PADResult`, `PADFramesResult`, `ScreenReplaySignals` and `DeepfakeSignal`
+hold no boolean at all, and `ChallengeSequenceResult` none of its own; a test
+walks their types to keep it so.
 
 ## What it is not
 
@@ -126,6 +130,9 @@ Registering it adds no route, no table and no background loop.
 | `PADReference` | `MiniFASNetUpstreamReference()` | The reference PassivePAD returns |
 | `Challenge` | `DefaultChallengeThresholds()` | The references EvaluateChallenge checks against |
 | `Integrity` | `DefaultIntegrityThresholds()` | The references MeasureInjectionSignals checks against |
+| `Sequence` | `DefaultSequenceThresholds()` | The references EvaluateChallengeSequence checks against, the per-step ones included |
+| `MaxPADFrames` | `8` (`DefaultMaxPADFrames`) | The most frames PassivePADFrames runs the models on per call, at most 600 |
+| `ScreenReplay` | `DefaultScreenReplayReference()` | The parameters MeasureScreenReplay measures with |
 
 A field left at its zero value, and a reference set left without a version,
 takes its default.
@@ -149,6 +156,24 @@ sig, err := livenessModule.MeasureInjectionSignals(liveness.Capture{
 }) // stage 3
 
 df, err := livenessModule.Deepfake(ctx, img) // stage 4: NotAvailable, recorded as such
+```
+
+The newer stages compose the same way:
+
+```go
+// 5: PAD on several frames of the capture, each with the box Detect found on it.
+multi, err := livenessModule.PassivePADFrames(ctx, []liveness.PADFrame{{Image: img, Box: faces[0].Box, CapturedAt: t0}, /* ... */})
+
+// 6: a sequence of 2-4 movements drawn by the server; nil kinds draws from every supported kind.
+seq, err := liveness.NewChallengeSequence(nil, 3, now, 5*time.Second, nil)
+// ... store seq; reveal seq.Steps[i].Kind and seq.Steps[i].Nonce to the client, one step at a time ...
+sr, err := livenessModule.EvaluateChallengeSequence(seq, liveness.SequenceResponse{
+	ReceivedAt: receivedAt,
+	Steps:      stepResponses, // []ChallengeResponse, each echoing its step's nonce
+})
+
+// 7: experimental, uncalibrated; normally on the face crop.
+sc, err := livenessModule.MeasureScreenReplay(img, image.Rect(x0, y0, x1, y1))
 ```
 
 Every model-backed result carries an `onnx.ModelInfo` — ID, Version, SHA256,
@@ -251,6 +276,76 @@ carries its reference set and version.
    Reason, Model: nil, Version: "arandu-liveness-deepfake-none-0.1"}`, so the
    application records the absence of the signal as evidence instead of
    skipping it silently.
+5. **Multi-frame PAD** (`PassivePADFrames`): stage 1 on each frame of one
+   capture, under one read lock. A frame with no image, more than
+   `onnx.MaxImagePixels`, or a box with no area inside its image is skipped
+   with its reason (`no_image`, `image_too_large`, `box_outside_image`) rather
+   than failing the call. Of the frames left, at most `MaxPADFrames` are run,
+   picked by `EvenlySpacedFrames` from the first to the last so the whole
+   capture is covered; the rest are skipped as `over_frame_limit`. The fused
+   bona fide probability of the evaluated frames is summarized by
+   `SummarizePADSeries`: mean, median, min, max, population variance and
+   standard deviation, and the mean and largest change between consecutive
+   frames (how stable the score is). `LabelCounts` counts the fused labels,
+   and `Span` is the evaluated frames' time span. The reference set is
+   stage 1's; there is no aggregate threshold.
+6. **Challenge sequence**, pure Go.
+   - `NewChallengeSequence` draws 2 to 4 (`MinSequenceSteps`,
+     `MaxSequenceSteps`) kinds from the pool given, or from every supported
+     kind (`DefaultSequenceKinds`), each uniformly among the kinds other than
+     the one before it, so no kind follows itself. The draw is
+     rejection-sampled from bytes of the reader (crypto/rand by default), so
+     it has no modulo bias. Unsupported kinds are refused.
+   - Every step is a `Challenge`: ID `<sequence ID>/<i>`, issued with the
+     sequence, with the cumulative deadline `issuedAt + (i+1)·ttl` for its
+     frames; the whole response is due by `issuedAt + steps·ttl`.
+   - Step nonces: `DeriveStepNonce` is the hex SHA-256 of a domain string and
+     the length-prefixed sequence ID, sequence nonce (256 bits), step index
+     and kind (`SequenceNonceDerivation`,
+     `arandu-liveness-step-nonce-sha256-v1`). It is one-way, so a step nonce
+     revealed to the client says nothing about the next step's, and
+     deterministic, so `ChallengeSequence.Validate` recomputes every binding
+     from the stored sequence and refuses a tampered one. No server key is
+     needed: the sequence nonce is itself the secret, and never leaves the
+     server.
+   - `EvaluateChallengeSequence` matches each response to the step whose
+     nonce it echoes (constant time), not to its position. A response echoing
+     no step nonce is unbound; a second one for a step is a duplicate; a step
+     nobody answered is evaluated on an empty response, so every step has a
+     `ChallengeResult`. Each step is evaluated as stage 2 with its frames held
+     against its own deadline and its receipt against the sequence's expiry.
+   - Sequence measurements: the observed order (answered steps by first frame)
+     against the issued one, as pair inversions; the gaps between consecutive
+     steps and the overlaps among them; the total duration; and the
+     completed, missing, unbound and duplicate counts. Each is a `Check`
+     against `DefaultSequenceThresholds()`, version
+     `arandu-liveness-sequence-0.1-uncalibrated`: every step completed, none
+     missing, unbound or duplicate, no inversion, no overlap, receipt before
+     expiry, step gap ≤ 3 s, total ≤ 30 s, and the stage 2 defaults per step.
+   - The sequence result has no `Completed` of its own: `CompletedSteps` and
+     the checks are what the policy reads.
+7. **Screen replay**, pure Go, **experimental and uncalibrated**. On a
+   caller-given region (normally the face crop; empty means the whole image):
+   - The region's BT.601 luma is area-averaged to `AnalysisSize` (256, or the
+     largest power of two that fits; regions under 32×32 are refused), its
+     mean removed, a periodic Hann window applied on both axes, and its 2D
+     spectrum taken with a radix-2 FFT written in Go.
+   - `PeriodicPeakRatio`: the share of the non-DC spectral energy held by the
+     strongest bin with radial frequency in [0.08, 0.5] cycles per analysed
+     pixel, with its 3×3 neighbourhood and its mirror. A screen's pixel grid
+     and the moiré it makes with the sensor show as such a peak.
+     `BandEnergyRatio`, `PeakFrequency` and `PeakOrientation` come from the
+     same spectrum.
+   - `SpecularHighlightRatio`: the share of the region's pixels with luma at
+     least 240 and a channel spread of at most 24, the near-white glare of a
+     screen's glass.
+   - Reference: `DefaultScreenReplayReference()`, version
+     `arandu-liveness-screen-replay-0.1-experimental-uncalibrated`. It carries
+     the parameters and **no threshold**. Halftone prints, fabrics, blinds and
+     compression blocks repeat too, and a sharp distant shot of a screen may
+     show no peak.
+   - There is deliberately no colour or flash reflection sequence: that
+     technique is the subject of third-party patents and is left out.
 
 ## The models
 
@@ -328,6 +423,19 @@ and handcrafted JPEG segments.
   PassivePAD on the detected box.
 - Concurrent PassivePAD calls from four goroutines give the same logits as a
   sequential call, under the race detector.
+- PassivePADFrames on drawn frames returns, for each frame evaluated, the
+  logits PassivePAD gives alone; unreadable frames are skipped with their
+  reasons, the frame limit picks evenly spaced frames, and the aggregates
+  equal `SummarizePADSeries` of the per-frame values.
+- Challenge sequences: the draw from fixed bytes is worked out by hand,
+  including a rejected byte; 5000 draws from a seeded stream never repeat a
+  kind and spread within five standard deviations of uniform; wrong order,
+  overlaps, long gaps, missing steps, nonce mismatches, duplicates, step
+  deadlines and the sequence expiry each move the right measurement.
+- Screen replay: a drawn grating is found at its frequency and orientation;
+  a drawn pixel grid scores a `PeriodicPeakRatio` thousands of times a smooth
+  ramp's; the highlight count and mean luma match hand-computed values; the
+  output is deterministic. None of this says how a real screen replay scores.
 
 Speed on the 480×640 cartoon, CPU provider, ONNX Runtime 1.30.0, on an Apple
 M4 Max (`go test -run '^$' -bench . ./tests/Feature/`): `PassivePAD` with both
@@ -348,6 +456,9 @@ a drawing means nothing either way.
 sessions, whose runs are thread-safe; the module's reader-writer lock lets
 them proceed together and makes `Close` wait for them. `EvaluateChallenge`,
 `MeasureInjectionSignals`, `Deepfake` and the exported helpers are pure.
+`PassivePADFrames` holds the read lock once for all its frames, and runs them
+one after another. `EvaluateChallengeSequence` and `MeasureScreenReplay` are
+pure.
 
 ## Limitations, and what needs evaluation
 
@@ -368,6 +479,15 @@ them proceed together and makes `Close` wait for them. `EvaluateChallenge`,
   regular synthetic timing, size changes, editing segments). A competent
   virtual-camera or injection attack produces none of them.
 - There is no deepfake or face-swap detector.
+- A challenge sequence closes a replay recorded before the sequence was drawn.
+  A real-time face reenactment, or a person in a mask, performs it as well;
+  revealing the steps one at a time narrows the window, and that is the
+  application's flow to build.
+- Multi-frame PAD summarizes an unevaluated model; its stability statistics
+  are uncalibrated, and frames of one capture are not independent samples.
+- The screen-replay signal is experimental: no threshold, no evaluation on
+  any replay attack, and a reduced region hides grids finer than the
+  reduction factor.
 - Before any of these signals weighs on a decision, measure APCER and BPCER
   on consented bona fide and attack data under an ISO/IEC 30107-3 protocol,
   calibrate every reference set on it, and check the variation across age,

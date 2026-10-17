@@ -72,7 +72,16 @@ ch, err := liveness.NewChallenge(liveness.ChallengeTurnLeft, now, ttl, nil)
 res, err := livenessModule.EvaluateChallenge(ch, response)     // Observed, Completed, Timing, Nonce, Checks
 sig, err := livenessModule.MeasureInjectionSignals(capture)    // Nonce, Timing, Duplicates, Geometry, Metadata, Checks
 df, err := livenessModule.Deepfake(ctx, img)                   // NotAvailable, with the reason
+
+multi, err := livenessModule.PassivePADFrames(ctx, padFrames)  // per-frame PADResult or skip reason, FusedReal stats
+seq, err := liveness.NewChallengeSequence(nil, 3, now, ttl, nil) // 2-4 kinds, no repeat, per-step nonce and deadline
+sr, err := livenessModule.EvaluateChallengeSequence(seq, seqResp) // Steps, ObservedOrder, OrderInversions, CompletedSteps, Checks
+sc, err := livenessModule.MeasureScreenReplay(img, faceRegion)  // experimental, uncalibrated: PeriodicPeakRatio, SpecularHighlightRatio
 ```
+
+Store the whole `ChallengeSequence` on the server; send the client each
+step's `Kind` and `Nonce`, never `seq.Nonce`. A step response is matched to
+its step by the step nonce it echoes, not by its position.
 
 Record each result's `ModelInfo` and reference version beside the signal as
 evidence, and the `DeepfakeSignal` too: its absence is evidence. The policy
