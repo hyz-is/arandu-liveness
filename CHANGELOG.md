@@ -10,6 +10,8 @@ a release is corrected by another release and never by moving a tag.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-18
+
 Everything here is additive: no exported symbol changed, and an installer
 who sets none of the new Config fields gets their defaults.
 
