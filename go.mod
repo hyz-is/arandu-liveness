@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/arandu-io/framework v0.50.1
-	github.com/hyz-is/arandu-face v0.1.0
+	github.com/hyz-is/arandu-face v0.2.0
 	github.com/hyz-is/arandu-onnx v0.3.0
 )
 
