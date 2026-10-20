@@ -31,3 +31,6 @@ Thumbs.db
 *~
 .idea/
 .vscode/
+
+# Local runs of the commands and the gate logs.
+tmp/

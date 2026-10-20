@@ -4,8 +4,8 @@ github.com/arandu-io/hesape v0.44.1 h1:H2DpMdXO7B0DKGDawt5y4u0AwO5FYkGXv2/dxzBfB
 github.com/arandu-io/hesape v0.44.1/go.mod h1:EGvD/xu7BKqX/sT4p/XN+igAb5tBagA/VwoEqeVV1b0=
 github.com/hyz-is/arandu-face v0.1.0 h1:RXadPhpSzhQwB5WgIO7Ub3ic0h31qfb3XlxxyGmmEqI=
 github.com/hyz-is/arandu-face v0.1.0/go.mod h1:t7IhXVXYzFgzTc0efph0BdOy3XbBFyLD7H8mYYgJcP0=
-github.com/hyz-is/arandu-onnx v0.1.0 h1:UnLC7YOdls3EhCJqnhvri4UDIwjWxkiSkj4vFTKVazQ=
-github.com/hyz-is/arandu-onnx v0.1.0/go.mod h1:O1TJv1ZCfZQI9bZGSZWn9wh8rqfNW4yoUlQGFHRWNFs=
+github.com/hyz-is/arandu-onnx v0.3.0 h1:hq9NZLqHNKZG8FpuFK3qvRMmv3kkkZHFlY+bTXUHLw8=
+github.com/hyz-is/arandu-onnx v0.3.0/go.mod h1:O1TJv1ZCfZQI9bZGSZWn9wh8rqfNW4yoUlQGFHRWNFs=
 github.com/yalue/onnxruntime_go v1.31.0 h1:1ln4YW1SFOFfGJZXe3jNOb2JUSt+l2pEneZfV8HdtFA=
 github.com/yalue/onnxruntime_go v1.31.0/go.mod h1:b4X26A8pekNb1ACJ58wAXgNKeUCGEAQ9dmACut9Sm/4=
 golang.org/x/crypto v0.57.0 h1:3ZVCjf8Ggz7zneR/EHRVx68Ctf+2pmIMP2UFhh9cC6M=
