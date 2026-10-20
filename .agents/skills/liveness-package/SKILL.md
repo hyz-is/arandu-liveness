@@ -22,8 +22,8 @@ as `arandu-onnx` requires.
 ## Install and fetch the models
 
 ```bash
-go get github.com/hyz-is/arandu-liveness@v0.1.0
-go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.1.0 -dir /srv/models
+go get github.com/hyz-is/arandu-liveness@v0.3.0
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.3.0 -dir /srv/models
 ```
 
 The command downloads every model over HTTPS from its pinned source and keeps
@@ -91,8 +91,10 @@ timestamps in the server's time base.
 
 ## Symptoms to recognise
 
-- **`dev-only model refused`.** `RefuseDevOnly` is set and `EnablePassive`
-  too; both PAD models are dev-only. That is the production switch working.
+- **`dev-only model refused`.** `RefuseDevOnly` is set and a configured model
+  is dev-only. Both PAD models are approved since v0.3.0 (for their licence;
+  they still have no PAD evaluation), so this names a model added later or an
+  older version of the package.
 - **Boot fails opening `minifasnet_v2` with "no such file".** The models
   directory is not filled, or `ModelsDir` points elsewhere. Run the command
   with `-check`.

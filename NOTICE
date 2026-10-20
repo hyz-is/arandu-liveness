@@ -28,4 +28,4 @@ Model weights
 
 The ONNX model files are NOT part of this repository and are not distributed
 with it. cmd/liveness-models downloads them from their upstream source. Each is
-under its own licence, and both are marked dev-only; see THIRD_PARTY_MODELS.md.
+under its own licence (Apache-2.0); see THIRD_PARTY_MODELS.md.

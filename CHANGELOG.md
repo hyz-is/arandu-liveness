@@ -10,6 +10,41 @@ a release is corrected by another release and never by moving a tag.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-19
+
+Both PAD models are approved, under the maintainer's open-source decision.
+It requires `github.com/hyz-is/arandu-onnx` v0.3.0 and
+`github.com/hyz-is/arandu-face` v0.2.0. No exported symbol changed except one
+added field.
+
+### Added
+
+- `ModelCard.Review`: who set the status, when, on what grounds, and the risks
+  accepted rather than resolved; for both PAD models it says the approval
+  covers the licence and provenance, not the PAD performance.
+- Tests: an approved manifest needs `commercial_use` `yes` and a `Review`
+  naming the decision, the accepted risk and the missing ISO/IEC 30107-3
+  evaluation; `RefuseDevOnly` boots both PAD models.
+
+### Changed
+
+- `minifasnet_v2` and `minifasnet_v1se` move from `dev-only` to `approved`, by
+  the maintainer's decision of 2026-10-19 (ADR-0010 of KUAA) that open-source
+  weights under a permissive licence are eligible for production. Their
+  Apache-2.0 licence fields are unchanged; the undisclosed training data is
+  recorded as an accepted risk, and `ModelCard.Evaluation` still says no
+  ISO/IEC 30107-3 evaluation exists.
+- The rule that a PAD model is not `approved` without an ISO/IEC 30107-3
+  evaluation now reads: `approved` is a licence and provenance status, and the
+  card keeps saying no evaluation exists until one does.
+- With both models approved, `RefuseDevOnly` refuses no shipped
+  configuration; the switch stays for a model added as dev-only.
+- Requires `github.com/hyz-is/arandu-onnx` v0.3.0 (was v0.1.0) and
+  `github.com/hyz-is/arandu-face` v0.2.0 (was v0.1.0). Nothing here uses what
+  arandu-face v0.2.0 adds; the bump keeps one version of each module in an
+  application that installs both.
+- `.gitignore` ignores `tmp/`.
+
 ## [0.2.0] - 2026-10-18
 
 Everything here is additive: no exported symbol changed, and an installer

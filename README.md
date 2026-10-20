@@ -19,7 +19,7 @@ detection are different questions, and each has its own call and result:
 
 | Stage | Call | Model | Result |
 | --- | --- | --- | --- |
-| 1. Passive PAD | `Module.PassivePAD(ctx, img, box)` | MiniFASNetV2 + MiniFASNetV1SE (**dev-only**) | `PADResult{PerModel []{Model, Scale, EffectiveScale, Crop, Logits, Probabilities}, FusedProbabilities, FusedRealProbability, FusedLabel, FusedLabelProbability, CaptureAspect, ReferenceSet}` |
+| 1. Passive PAD | `Module.PassivePAD(ctx, img, box)` | MiniFASNetV2 + MiniFASNetV1SE (approved licence; no PAD evaluation) | `PADResult{PerModel []{Model, Scale, EffectiveScale, Crop, Logits, Probabilities}, FusedProbabilities, FusedRealProbability, FusedLabel, FusedLabelProbability, CaptureAspect, ReferenceSet}` |
 | 2. Active challenge | `EvaluateChallenge(ch, resp, thresholds)` / `Module.EvaluateChallenge` | none (Go) | `ChallengeResult{Kind, Supported, Observed, Completed, Timing, FrameCount, Monotonicity, Nonce, LandmarkModels, Checks, Thresholds}` |
 | 3. Capture integrity | `MeasureInjectionSignals(capture, thresholds)` / `Module.MeasureInjectionSignals` | none (Go) | `InjectionSignals{Nonce, Timing, Duplicates, Geometry, Metadata, Checks, Thresholds}` |
 | 4. Deepfake | `Module.Deepfake(ctx, img)` / `DeepfakeUnavailable()` | none available | `DeepfakeSignal{Availability "not_available", Reason, Model nil, Version}` |
@@ -43,7 +43,9 @@ walks their types to keep it so.
   set beside the measurement, and the application's decision layer applies its
   own policy and records the evidence.
 - **Not certified PAD.** The PAD models have no ISO/IEC 30107-3 or laboratory
-  evaluation, their training data is undisclosed, and both are `dev-only`.
+  evaluation and their training data is undisclosed. They are `approved` for
+  their Apache-2.0 licence, which is a statement about provenance, not about
+  how well they detect attacks.
 - **Not a deepfake detector.** No such model is shipped; the stage reports its
   own absence.
 - **Not a face detector.** The face box and landmarks come from the caller,
@@ -59,14 +61,14 @@ walks their types to keep it so.
 | Go | 1.26 or later |
 | cgo | `CGO_ENABLED=1` and a C compiler (the ONNX Runtime binding is cgo) |
 | ONNX Runtime | the shared library, **1.26 or later**, when passive PAD is enabled; development and CI use **1.30.0**. Installation per operating system is in the [`arandu-onnx` README](https://github.com/hyz-is/arandu-onnx#installing-onnx-runtime). A configuration without `EnablePassive` boots without touching ONNX Runtime |
-| Arandu | framework 0.50 or later, `github.com/hyz-is/arandu-onnx` and `github.com/hyz-is/arandu-face` |
+| Arandu | framework 0.50 or later, `github.com/hyz-is/arandu-onnx` v0.3.0 and `github.com/hyz-is/arandu-face` v0.2.0 or later |
 | Models | 3.5 MB for both PAD models, fetched once with `cmd/liveness-models`; the face detector comes from `arandu-face` |
 
 ## Install
 
 ```bash
-go get github.com/hyz-is/arandu-liveness@v0.1.0
-go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.1.0 -dir /srv/models
+go get github.com/hyz-is/arandu-liveness@v0.3.0
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.3.0 -dir /srv/models
 ```
 
 ## Wire it
@@ -111,9 +113,10 @@ And the registration, inside the `k.Register(...)` call already there, after
 
 `Boot` initializes the runtime if `arandu-onnx` has not yet and passive PAD is
 enabled, and opens the PAD models, verifying each; a missing or altered file
-stops the boot, naming the model. With `RefuseDevOnly` set and passive PAD
-enabled, the boot stops before any file is read, with `ErrDevOnlyRefused`:
-both PAD models are dev-only. `Health` reports whether the module is booted
+stops the boot, naming the model. With `RefuseDevOnly` set, a configured
+dev-only model stops the boot before any file is read, with
+`ErrDevOnlyRefused`; both PAD models are approved since v0.3.0, so passive PAD
+boots with the switch set. `Health` reports whether the module is booted
 and, with models open, whether the runtime under them is usable. `Models`
 lists the `ModelInfo` of each open model. `Close` closes the sessions.
 Registering it adds no route, no table and no background loop.
@@ -358,8 +361,8 @@ field for — training data, reported accuracy, evaluation, caveats — is in it
 
 | id | file | sha256 | size | crop scale | status |
 | --- | --- | --- | --- | --- | --- |
-| `minifasnet_v2` | `liveness/MiniFASNetV2.onnx` | `b32929adc2d9c34b9486f8c4c7bc97c1b69bc0ea9befefc380e4faae4e463907` | 1.7 MB | 2.7 | **dev-only** |
-| `minifasnet_v1se` | `liveness/MiniFASNetV1SE.onnx` | `ebab7f90c7833fbccd46d3a555410e78d969db5438e169b6524be444862b3676` | 1.7 MB | 4.0 | **dev-only** |
+| `minifasnet_v2` | `liveness/MiniFASNetV2.onnx` | `b32929adc2d9c34b9486f8c4c7bc97c1b69bc0ea9befefc380e4faae4e463907` | 1.7 MB | 2.7 | approved |
+| `minifasnet_v1se` | `liveness/MiniFASNetV1SE.onnx` | `ebab7f90c7833fbccd46d3a555410e78d969db5438e169b6524be444862b3676` | 1.7 MB | 4.0 | approved |
 
 | | both models |
 | --- | --- |
@@ -368,8 +371,8 @@ field for — training data, reported accuracy, evaluation, caveats — is in it
 | Model licence | Apache-2.0 |
 | Training data | undisclosed upstream |
 | Evaluation | none known: no ISO/IEC 30107-3 evaluation, no iBeta or other laboratory report, no measurement on consented attack data. APCER and BPCER are unknown |
-| Commercial use | permitted by the licence |
-| Status | **dev-only**, for the training-data and evaluation reasons above |
+| Commercial use | yes, by the licence |
+| Status | approved since v0.3.0, for the licence: the maintainer's decision of 2026-10-19 makes open-source weights under a permissive licence eligible for production. The undisclosed training data is an accepted, recorded risk (`ModelCard.Review`), and the missing evaluation above still stands: approval says nothing of the PAD performance |
 
 No model here infers race, ethnicity or gender, and none is trained on
 CelebA-Spoof (non-commercial); a unit test refuses manifests for them.
@@ -379,15 +382,17 @@ CelebA-Spoof (non-commercial); a unit test refuses manifests for them.
 A `dev-only` model loads, and every `ModelInfo` it produces says
 `Status: "dev-only"`, so the evidence the application records shows the signal
 came from a model not cleared for production. With `Config.RefuseDevOnly` set —
-the production switch — and `EnablePassive` on, `Boot` stops before any file is
-read, with `ErrDevOnlyRefused` naming the model: both PAD models are dev-only.
-The challenge, integrity and deepfake stages use no model and work either way.
+the production switch — `Boot` stops before any file is read when a configured
+model is dev-only, with `ErrDevOnlyRefused` naming the model. Both PAD models
+were dev-only until v0.3.0 and are approved now, so no shipped configuration is
+refused; the switch stays for a model added as dev-only. The challenge,
+integrity and deepfake stages use no model and work either way.
 
 ### Download and verify
 
 ```bash
-go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.1.0 -dir /srv/models
-go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.1.0 -dir /srv/models -check
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.3.0 -dir /srv/models
+go run github.com/hyz-is/arandu-liveness/cmd/liveness-models@v0.3.0 -dir /srv/models -check
 ```
 
 A models directory holds each file at the path its manifest's `file` says
@@ -462,9 +467,9 @@ pure.
 
 ## Limitations, and what needs evaluation
 
-- **PAD assurance**: none established. The weights are dev-only, their
-  training data is undisclosed, and they have no ISO/IEC 30107-3 or
-  laboratory evaluation. What classes 0 and 2 mean is unverified.
+- **PAD assurance**: none established. The weights are approved for their
+  licence only; their training data is undisclosed, and they have no
+  ISO/IEC 30107-3 or laboratory evaluation. What classes 0 and 2 mean is unverified.
 - The models were built for 3:4 phone frames and an upstream RetinaFace box;
   a YuNet or BlazeFace box differs in size and position, which changes the
   crop. That difference is not measured.

@@ -48,14 +48,16 @@ network call is written.
 
 The `framework` line is a floor, and `go.mod` says it too. Move both together.
 
-## The replaces
+## No replace, and the release order
 
-`go.mod` replaces `github.com/hyz-is/arandu-onnx` and
-`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`
-while those modules are unpublished. Before the first tag here: tag both,
-require them at those versions, delete the replaces and their comment, and run
-the gates from a checkout without the siblings. The release workflow refuses a
-local replace.
+`go.mod` requires `github.com/hyz-is/arandu-onnx` and
+`github.com/hyz-is/arandu-face` at published tags, with no `replace`; the
+release workflow refuses a local replace. When this module needs a version of
+arandu-face that is not tagged yet, arandu-face is released first: tag it,
+then `GOWORK=off go get github.com/hyz-is/arandu-face@<tag> && go mod tidy`
+here, so `go.sum` holds its hashes, and only then run the gates and tag this
+module. To try the pair before arandu-face is tagged, use a `go.work` in the
+git-ignored `tmp/` (`GOWORK=tmp/go.work`), never committed, and say so.
 
 ## Dependencies
 

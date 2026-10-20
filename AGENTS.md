@@ -91,11 +91,12 @@ build from competing with everything else for memory.
 `GOWORK=off` matters because this checkout may sit beside a Go workspace that
 does not list it.
 
-While `go.mod` replaces `github.com/hyz-is/arandu-onnx` and
-`github.com/hyz-is/arandu-face` with `../arandu-onnx` and `../arandu-face`,
-build from a checkout that has them beside this one. Once both are required at
-tags the replaces are gone, the checkout builds on its own, and the release
-workflow, which refuses a local replace, can publish this module.
+`go.mod` requires `github.com/hyz-is/arandu-onnx` and
+`github.com/hyz-is/arandu-face` at published tags, with no replace, so the
+checkout builds on its own; the release workflow refuses a local replace. When
+this module requires an arandu-face version not yet tagged, arandu-face is
+released first (see the release skill). Local runs and gate logs go in the
+git-ignored `tmp/`.
 
 `aru doctor` reads applications, not libraries. That is why
 `tests/Unit/audit_test.go` compares `arandu.mod.toml` with what the code calls.
