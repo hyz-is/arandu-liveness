@@ -32,9 +32,10 @@ func TestEveryShippedManifestRecordsItsProvenance(t *testing.T) {
 			t.Errorf("unexpected manifest %s", m.ID)
 			continue
 		}
-		// Both are dev-only: the weights are Apache-2.0, but their training
-		// data is undisclosed and they have no PAD evaluation.
-		if m.Status != onnx.StatusDevOnly || m.CommercialUse != onnx.CommercialUseYes || m.File != w.file ||
+		// Both are approved for their Apache-2.0 weights; their undisclosed
+		// training data is an accepted risk, and they still have no PAD
+		// evaluation, which their cards say.
+		if m.Status != onnx.StatusApproved || m.CommercialUse != onnx.CommercialUseYes || m.File != w.file ||
 			m.Version != w.version || m.Precision != onnx.PrecisionFP32 || m.License != "Apache-2.0" || m.ModelLicense != "Apache-2.0" {
 			t.Errorf("%s: status %s, commercial use %s, file %s, version %s, precision %s, licences %s/%s",
 				m.ID, m.Status, m.CommercialUse, m.File, m.Version, m.Precision, m.License, m.ModelLicense)
@@ -153,5 +154,38 @@ func TestTheModelCardsRecordWhatTheManifestCannot(t *testing.T) {
 	}
 	if _, err := liveness.LookupModelCard("fairface"); err == nil {
 		t.Error("a card for an unshipped model was found")
+	}
+}
+
+// TestOnlyCommercialModelsAreApproved holds the licence rule the statuses
+// follow, and what an approval of a PAD model does not claim: a model is
+// approved only when its weights' licence allows commercial use, its card
+// says who approved it and which risks were accepted, and the card still
+// says that no PAD evaluation exists until one does.
+func TestOnlyCommercialModelsAreApproved(t *testing.T) {
+	t.Parallel()
+
+	manifests, err := liveness.Manifests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range manifests {
+		if m.Status != onnx.StatusApproved {
+			continue
+		}
+		if m.CommercialUse != onnx.CommercialUseYes {
+			t.Errorf("%s is approved with commercial_use %q", m.ID, m.CommercialUse)
+		}
+		card, err := liveness.LookupModelCard(m.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(card.Review, "ADR-0010") || !strings.Contains(card.Review, "accepted") ||
+			!strings.Contains(card.Review, "ISO/IEC 30107-3") {
+			t.Errorf("%s: the review does not name the decision, the accepted risk and the missing evaluation: %q", m.ID, card.Review)
+		}
+		if strings.Contains(strings.ToLower(card.TrainingData+card.Review+card.Notes), "dev-only") {
+			t.Errorf("%s is approved and its card still calls it dev-only", m.ID)
+		}
 	}
 }

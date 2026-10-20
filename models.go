@@ -106,6 +106,11 @@ type ModelCard struct {
 	Evaluation string
 	// Notes are the reviewer's caveats.
 	Notes string
+	// Review is who set the manifest's status, when, and on what grounds,
+	// including the risks that were accepted rather than resolved. An
+	// approved status is about the licence and the provenance; what the
+	// model detects is what Evaluation says.
+	Review string
 }
 
 // minifasnetTraining is what is known of both MiniFASNet models' data.
@@ -125,6 +130,14 @@ const minifasnetClasses = "Three logits, softmax outside the graph. Upstream tes
 	"face and every other class fake; what classes 0 and 2 each stand for (print, replay, mask) is not " +
 	"documented upstream and is unverified here."
 
+// minifasnetReview is the ground both models were approved on.
+const minifasnetReview = "Approved on 2026-10-19 by the maintainer (decision ADR-0010 of KUAA, the application " +
+	"these engines were built for): open-source weights under a permissive licence (Apache-2.0, MIT or BSD) are " +
+	"eligible for production, and no paid licence is used. The weights are Apache-2.0. The undisclosed training " +
+	"data and its consent are a risk the maintainer accepted and recorded, not one resolved here. Approval is " +
+	"of the licence and provenance only: the models still have no ISO/IEC 30107-3 evaluation (see Evaluation), " +
+	"so their PAD performance is unknown until it is measured on consented bona fide and attack data."
+
 // cards are the model cards, by identifier.
 var cards = map[string]ModelCard{
 	ModelMiniFASNetV2: {
@@ -134,6 +147,7 @@ var cards = map[string]ModelCard{
 		TrainingData: minifasnetTraining,
 		Reported:     "The upstream repository reports no APCER/BPCER on a public protocol for these weights; nothing was measured here.",
 		Evaluation:   minifasnetEvaluation,
+		Review:       minifasnetReview,
 		Notes: "Input: the face box enlarged 2.7 times about its centre as upstream CropImage does, resized to 80x80, " +
 			"BGR raw 0..255 with no mean or scale. " + minifasnetClasses + " Upstream expects 3:4 (width:height) frames.",
 	},
@@ -144,6 +158,7 @@ var cards = map[string]ModelCard{
 		TrainingData: minifasnetTraining,
 		Reported:     "The upstream repository reports no APCER/BPCER on a public protocol for these weights; nothing was measured here.",
 		Evaluation:   minifasnetEvaluation,
+		Review:       minifasnetReview,
 		Notes: "Input: the face box enlarged 4.0 times about its centre as upstream CropImage does, resized to 80x80, " +
 			"BGR raw 0..255 with no mean or scale. " + minifasnetClasses + " Upstream expects 3:4 (width:height) frames.",
 	},

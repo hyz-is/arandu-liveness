@@ -46,8 +46,13 @@ merged.
    with a pinned source, a digest and its licences, plus a `ModelCard` for
    what the manifest has no field for (training data, reported accuracy, PAD
    evaluation), reviewed before its status is `approved`. `dev-only` models are
-   refused by `Boot` when `Config.RefuseDevOnly` is set. A PAD model is not
-   `approved` without an ISO/IEC 30107-3 evaluation on consented data.
+   refused by `Boot` when `Config.RefuseDevOnly` is set. `approved` is a
+   licence and provenance status: under the maintainer's open-source decision
+   (2026-10-19), permissive weights (Apache-2.0, MIT, BSD) qualify, with what
+   is unknown about their data recorded in `ModelCard.Review` as an accepted
+   risk. It is not a PAD performance claim: until an ISO/IEC 30107-3
+   evaluation on consented data exists, the card's `Evaluation` says so, and
+   no PAD signal is fit to weigh on a decision before it is measured.
 5. **No sensitive or non-commercial model.** No model that infers race,
    ethnicity or gender (sensitive data under LGPD art. 11), no non-commercial
    recognizer, and nothing trained on CelebA-Spoof. `tests/Unit/models_test.go`

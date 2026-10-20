@@ -45,7 +45,7 @@ func TestPassivePADReturnsEachModelWithItsProvenance(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if out.Model.ID != want[i].id || out.Model.SHA256 != manifest.SHA256 || out.Model.Status != onnx.StatusDevOnly ||
+		if out.Model.ID != want[i].id || out.Model.SHA256 != manifest.SHA256 || out.Model.Status != onnx.StatusApproved ||
 			out.Model.Version != manifest.Version || out.Model.Runtime == "" {
 			t.Errorf("model %d carries %+v", i, out.Model)
 		}

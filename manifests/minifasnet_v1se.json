@@ -7,9 +7,9 @@
   "license": "Apache-2.0",
   "model_license": "Apache-2.0",
   "commercial_use": "yes",
-  "redistribution": "allowed under Apache-2.0, with its licence and notice; a third-party export of minivision-ai/Silent-Face-Anti-Spoofing weights whose training data is undisclosed, see ModelCard",
+  "redistribution": "allowed under Apache-2.0, with its licence and notice; a third-party export of minivision-ai/Silent-Face-Anti-Spoofing weights whose training data is undisclosed, a risk the maintainer accepted, see ModelCard",
   "modification": "allowed under Apache-2.0",
-  "status": "dev-only",
+  "status": "approved",
   "inputs": [{"name": "input", "element_type": "float32", "shape": [-1, 3, 80, 80]}],
   "outputs": [{"name": "output", "element_type": "float32", "shape": [-1, 3]}],
   "precision": "fp32"

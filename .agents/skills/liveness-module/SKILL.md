@@ -21,8 +21,11 @@ license: MIT
 - **A silent absence.** A stage without a cleared model returns
   `NotAvailable` with a reason; a challenge five landmarks cannot measure
   returns `Supported: false` with a reason.
-- **A model without a manifest and a card,** or a PAD model marked `approved`
-  without an ISO/IEC 30107-3 evaluation on consented data.
+- **A model without a manifest and a card,** an approved model whose
+  `commercial_use` is not `yes` or whose card has no `Review`, or a PAD card
+  that stops saying no ISO/IEC 30107-3 evaluation exists before one does.
+  `approved` covers the licence and provenance (the open-source decision of
+  2026-10-19), never the PAD performance.
 - **A sensitive or non-commercial model.** Nothing that infers race,
   ethnicity or gender, nothing trained on CelebA-Spoof.
   `tests/Unit/models_test.go` holds the list.

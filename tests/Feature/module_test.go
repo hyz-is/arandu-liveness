@@ -86,28 +86,48 @@ func TestNewRefusesWhatCannotWork(t *testing.T) {
 	}
 }
 
-// TestRefuseDevOnlyStopsTheBootBeforeAnyFileIsRead is the production switch:
-// both PAD models are dev-only, so a configuration that enables passive PAD
-// does not boot with it set, and says which model. It needs neither ONNX
-// Runtime nor the files, because the refusal comes first.
-func TestRefuseDevOnlyStopsTheBootBeforeAnyFileIsRead(t *testing.T) {
+// TestRefuseDevOnlyPassesEveryShippedConfiguration is the production switch
+// with nothing left to refuse: both PAD models are approved, so no
+// configuration stops at the dev-only check. On an empty directory the boot
+// goes on to the files, and fails there or at the runtime instead. It needs
+// neither ONNX Runtime nor the files, because the check comes first.
+//
+// A model added as dev-only is refused again with ErrDevOnlyRefused; the
+// switch stays for it.
+func TestRefuseDevOnlyPassesEveryShippedConfiguration(t *testing.T) {
 	t.Parallel()
 
+	manifests, err := liveness.Manifests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range manifests {
+		if m.Status == onnx.StatusDevOnly {
+			t.Errorf("%s is dev-only: extend this test with the configuration that needs it, refused", m.ID)
+		}
+	}
 	ctx := context.Background()
-	for _, tc := range []struct {
-		models []string
-		model  string
-	}{
-		{nil, liveness.ModelMiniFASNetV2},
-		{[]string{liveness.ModelMiniFASNetV1SE}, liveness.ModelMiniFASNetV1SE},
-	} {
-		m := unbootedModule(t, liveness.Config{ModelsDir: t.TempDir(), EnablePassive: true, RefuseDevOnly: true, PADModels: tc.models})
+	for _, models := range [][]string{nil, {liveness.ModelMiniFASNetV2}, {liveness.ModelMiniFASNetV1SE}} {
+		m := unbootedModule(t, liveness.Config{ModelsDir: t.TempDir(), EnablePassive: true, RefuseDevOnly: true, PADModels: models})
 		err := m.Boot(ctx)
-		if !errors.Is(err, liveness.ErrDevOnlyRefused) || !strings.Contains(err.Error(), tc.model) {
-			t.Errorf("Boot with %s and RefuseDevOnly = %v, want ErrDevOnlyRefused naming it", tc.model, err)
+		if err == nil || errors.Is(err, liveness.ErrDevOnlyRefused) {
+			t.Errorf("Boot of %v on an empty directory = %v, want a missing file or runtime, not a dev-only refusal", models, err)
 		}
 		if err := m.Health(ctx); !errors.Is(err, liveness.ErrNotBooted) {
-			t.Errorf("Health after the refusal = %v, want ErrNotBooted", err)
+			t.Errorf("Health after the failed boot = %v, want ErrNotBooted", err)
+		}
+	}
+}
+
+func TestRefuseDevOnlyBootsBothPADModels(t *testing.T) {
+	m := bootModule(t, liveness.Config{EnablePassive: true, RefuseDevOnly: true})
+	models := m.Models()
+	if len(models) != 2 {
+		t.Fatalf("RefuseDevOnly with passive PAD opened %+v, want both PAD models", models)
+	}
+	for _, info := range models {
+		if info.Status != onnx.StatusApproved {
+			t.Errorf("%s opened with status %s", info.ID, info.Status)
 		}
 	}
 }
